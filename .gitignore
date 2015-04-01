@@ -1,5 +1,7 @@
 itp
 
+*.o
+
 # Lex 
 lex.yy.c
 

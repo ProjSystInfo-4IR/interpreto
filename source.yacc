@@ -1,5 +1,6 @@
 %{
 #include <stdio.h>
+#include "mem.h"
 
 extern FILE * yyin;
 %}
@@ -21,16 +22,24 @@ Input: Instructions ;
  
 Instructions: Instruction tEOL Instructions
 			| ;
-Instruction : tADD NOMBRE NOMBRE NOMBRE { printf("%d %d %d\n", $2, $3, $4); }
+Instruction : tADD NOMBRE NOMBRE NOMBRE { mem_set($2, mem_get($3) + mem_get($4)); }
+			| tSOU NOMBRE NOMBRE NOMBRE { mem_set($2, mem_get($3) - mem_get($4)); }
+			| tMUL NOMBRE NOMBRE NOMBRE { mem_set($2, mem_get($3) * mem_get($4)); }
+			| tDIV NOMBRE NOMBRE NOMBRE { mem_set($2, mem_get($3) / mem_get($4)); }
+			| tCOP NOMBRE NOMBRE        { mem_set($2, mem_get($3)); }
+			| tAFC NOMBRE NOMBRE        { mem_set($2, $3); }
+			| tPRI NOMBRE               { printf("A l'adresse %d j'ai %d\n", $2, mem_get($2));}
 
 %%
 
 int yyerror(char *s) {
-  printf("%s\n",s);
+  	printf("%s\n",s);
 }
 
 int main(void) {
 
-  yyin = fopen("tests/test1.asm", "r");
-  return yyparse();
+	mem_init();
+
+  	yyin = fopen("tests/test1.asm", "r");
+  	return yyparse();
 }
