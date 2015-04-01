@@ -18,9 +18,8 @@ DIGITS 	[0-9]+
 <COMMENT>.		{}                // consume all characters 
 
  /*** Rules section ***/
-
-SPACE ; // élimine blancs et tabs // Astuce qui ne marche pas : ajouter EOL en fin de fichier <<EOF>> { static int once = 0; return once++ ? 0 : '\n' ;}
-EOL           return tEOL;        //return tSPACE ;
+{SPACE} ;     // élimine blancs et tabs   /*** Astuce qui ne marche pas : ajouter EOL en fin de fichier <<EOF>> { static int once = 0; return once++ ? 0 : '\n' ;} **/
+{EOL}         return tEOL;         //return tSPACE ;
 ADD 		  return tADD; 
 MUL           return tMUL;  
 SOU           return tSOU;  
