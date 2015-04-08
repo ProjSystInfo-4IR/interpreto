@@ -1,6 +1,8 @@
 %{
 #include <stdio.h>
-#include "mem.h"
+#include <unistd.h> // getopt
+#include "code.h"
+#include "interpret.h"
 
 extern FILE * yyin;
 %}
@@ -22,24 +24,37 @@ Input: Instructions ;
  
 Instructions: Instruction tEOL Instructions
 			| ;
-Instruction : tADD NOMBRE NOMBRE NOMBRE { mem_set($2, mem_get($3) + mem_get($4)); }
-			| tSOU NOMBRE NOMBRE NOMBRE { mem_set($2, mem_get($3) - mem_get($4)); }
-			| tMUL NOMBRE NOMBRE NOMBRE { mem_set($2, mem_get($3) * mem_get($4)); }
-			| tDIV NOMBRE NOMBRE NOMBRE { mem_set($2, mem_get($3) / mem_get($4)); }
-			| tCOP NOMBRE NOMBRE        { mem_set($2, mem_get($3)); }
-			| tAFC NOMBRE NOMBRE        { mem_set($2, $3); }
-			| tPRI NOMBRE               { printf("A l'adresse %d j'ai %d\n", $2, mem_get($2));}
-
+Instruction:  tADD NOMBRE NOMBRE NOMBRE 	{ code3_ajouter(tADD, $2, $3, $4); }
+			| tSOU NOMBRE NOMBRE NOMBRE 	{ code3_ajouter(tSOU, $2, $3, $4); }
+			| tMUL NOMBRE NOMBRE NOMBRE 	{ code3_ajouter(tMUL, $2, $3, $4); }
+			| tDIV NOMBRE NOMBRE NOMBRE 	{ code3_ajouter(tDIV, $2, $3, $4); }
+			| tCOP NOMBRE NOMBRE        	{ code2_ajouter(tCOP, $2, $3); }
+			| tAFC NOMBRE NOMBRE        	{ code2_ajouter(tAFC, $2, $3); }
+			| tJMF NOMBRE NOMBRE        	{ code2_ajouter(tJMF, $2, $3); }		
+			| tJMP NOMBRE               	{ code1_ajouter(tJMP, $2); }
+			| tPRI NOMBRE               	{ code1_ajouter(tPRI, $2); }
+			;
 %%
 
 int yyerror(char *s) {
   	printf("%s\n",s);
 }
 
-int main(void) {
+int main(int arg, char** argv ) { int i; FILE* inputFile;
 
-	mem_init();
+	if ((inputFile = fopen(argv[1], "r")) == NULL) {
+		printf("Cannot open input file %s\n", argv[optind]);
+		return -1;
+	}
+	yyin = inputFile;
 
-  	yyin = fopen("tests/test1.asm", "r");
-  	return yyparse();
+	code_init();
+  	
+  	i = yyparse();
+  	
+  	code_print();
+
+  	code_run();
+
+  	return i;
 }
