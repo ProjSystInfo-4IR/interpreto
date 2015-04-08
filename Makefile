@@ -3,14 +3,17 @@ CFLAGS=-Wall -Werror -c
 
 all: $(TARGETS)
 
-itp: y.tab.c lex.yy.c code.o mem.o
+itp: y.tab.c lex.yy.c code.o mem.o logger.o
 	gcc $^ -ll -o $@ 
 
+clean:
+	rm *.o
+	
 code.o: code.c code.h
 	gcc $(CFLAGS) code.c -o $@
 
-interpret.o: interpret.c interpret.h
-	gcc $(CFLAGS) interpret.c -o $@
+logger.o: dumb-logger/logger.c dumb-logger/logger.h
+	gcc $(CFLAGS) dumb-logger/logger.c -o $@
 
 mem.o: mem.c mem.h 
 	gcc $(CFLAGS) mem.c -o $@

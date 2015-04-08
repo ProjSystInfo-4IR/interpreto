@@ -2,8 +2,7 @@
 #include <stdio.h>
 #include <unistd.h> // getopt
 #include "code.h"
-#include "interpret.h"
-
+#include "dumb-logger/logger.h"
 extern FILE * yyin;
 %}
 
@@ -37,16 +36,17 @@ Instruction:  tADD NOMBRE NOMBRE NOMBRE 	{ code3_ajouter(tADD, $2, $3, $4); }
 %%
 
 int yyerror(char *s) {
-  	printf("%s\n",s);
+  	logger_error("%s\n",s);
 }
 
 int main(int arg, char** argv ) { int i; FILE* inputFile;
 
 	if ((inputFile = fopen(argv[1], "r")) == NULL) {
-		printf("Cannot open input file %s\n", argv[optind]);
+		logger_error("Cannot open input file %s\n", argv[optind]);
 		return -1;
 	}
 	yyin = inputFile;
+	logger_set_level(LOGGER_VERBOSE);
 
 	code_init();
   	
