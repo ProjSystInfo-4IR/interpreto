@@ -80,8 +80,11 @@ void code_run() { int cur_line = 0;
 				}
 				break;
 			case tPRI : 
-				printf("%d\n", mem_get(c.arg1));
-				logger_info("Printed value at address %d\n", c.arg1);
+				if (logger_get_level() == LOGGER_VERBOSE) {
+					logger_info("We have %d at address %d\n", mem_get(c.arg1), c.arg1);
+				} else {
+					printf("%d", mem_get(c.arg1));
+				}
 				break;
 		}
 		cur_line++;
@@ -89,6 +92,7 @@ void code_run() { int cur_line = 0;
 }
 
 void code_print() { int i;
+	logger_info("Tableau du code executable : \n");
 	for (i = 0; i < lineNum; i++) {
 		logger_info("L%2d : %3d %3d %3d %3d\n", i, 
 			EXEC_CODE[i].opcode, 
