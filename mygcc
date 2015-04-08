@@ -1,0 +1,7 @@
+# Shortcut to execute a C source file
+
+../compilo/cible $1 -o o.tmp.asm
+if [ "$?" -eq 0 ] 
+then 
+	./itp o.tmp.asm
+fi
