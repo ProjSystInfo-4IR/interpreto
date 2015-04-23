@@ -1,8 +1,12 @@
 %{
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h> // getopt
+#include <errno.h>  // error code
+
 #include "code.h"
 #include "dumb-logger/logger.h"
+
 extern int yylineno;
 extern FILE * yyin;
 char* inputFileName;
@@ -45,15 +49,30 @@ int yyerror(char *s) {
   	logger_error("%s:%d : %s\n", inputFileName, yylineno, s);
 }
 
-int main(int arg, char** argv ) { int i; FILE* inputFile;
+int main(int argc, char** argv ) { int i, opt; FILE* inputFile;
 	inputFileName = malloc(20*sizeof(char));
-	if ((inputFile = fopen(argv[1], "r")) == NULL) {
+
+    while ((opt = getopt(argc, argv, "v")) != -1) {
+	    switch (opt) {
+			case 'v' : 
+			  // enables verbose mode
+			  logger_set_level(LOGGER_VERBOSE);
+			  break;
+	  	}
+    }
+	
+	if (optind == argc) {
+    	logger_error("No input file specified\n");
+    	return EXIT_FAILURE;
+  	}
+
+	if ((inputFile = fopen(argv[optind], "r")) == NULL) {
 		logger_error("Cannot open input file %s\n", argv[optind]);
 		return -1;
 	}
+
 	yyin = inputFile;
 	inputFileName = argv[1];
-	logger_set_level(LOGGER_VERBOSE);
 
 	code_init();
   	
