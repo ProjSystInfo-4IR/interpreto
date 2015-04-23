@@ -9,7 +9,8 @@
 SPACE  	[\t ]+
 EOL  	[\n]+
 DIGITS 	[0-9]+
-
+FUNCNAME [a-zA-Z][a-zA-Z0-9_]*
+%option yylineno
 %x COMMENT
 %%
 
@@ -31,9 +32,15 @@ JMF       	  return tJMF;
 INF        	  return tINF; 
 SUP           return tSUP;  
 EQU           return tEQU;  
-PRI           return tPRI;    
+PRI           return tPRI;
+CALL          return tCALL;
+RET           return tRET;
+LEAVE         return tLEAVE;    
 {DIGITS} 	{ yylval.nombre=atoi(yytext); 
 			  return NOMBRE;
+			}
+{FUNCNAME} 	{ yylval.chaine = strdup(yytext); 
+			  return FNAME; 
 			}
  
 %%

@@ -1,6 +1,7 @@
 #include "code.h"
 #include "y.tab.h"
 #include "mem.h"
+#include "stack.h"
 #include "dumb-logger/logger.h"
 #include <stdio.h>
 
@@ -17,9 +18,19 @@ struct code {
 struct code EXEC_CODE[CAPACITE];
 int lineNum;
 
-void code_init() {
-	mem_init();
-	lineNum = 0;
+void code_init() {     
+	stack_init();     
+	mem_init();     
+	lineNum = 1; 
+}
+
+int code0_ajouter(int opcode) {
+	EXEC_CODE[lineNum].opcode = opcode;
+	EXEC_CODE[lineNum].arg1 = MARQUEUR_VIDE;
+	EXEC_CODE[lineNum].arg2 = MARQUEUR_VIDE;
+	EXEC_CODE[lineNum].arg3 = MARQUEUR_VIDE;
+	lineNum++;
+	return 0;
 }
 
 int code1_ajouter(int opcode, int arg1) {
@@ -49,7 +60,7 @@ int code3_ajouter(int opcode, int arg1, int arg2, int arg3) {
 	return 0;
 }
 
-void code_run() { int cur_line = 0;
+int code_run() { int cur_line = 0; int tmp;
 	while(cur_line <= lineNum) {
 		struct code c = EXEC_CODE[cur_line];
 		switch (c.opcode) {
@@ -81,14 +92,35 @@ void code_run() { int cur_line = 0;
 				break;
 			case tPRI : 
 				if (logger_get_level() == LOGGER_VERBOSE) {
-					logger_info("We have %d at address %d\n", mem_get(c.arg1), c.arg1);
+					logger_info("We have %d at address %d\n", mem_get(c.arg1), c.arg1+1);
 				} else {
-					printf("%d", mem_get(c.arg1));
+					printf("%d\n", mem_get(c.arg1));
 				}
+				break;
+			case tCALL : 
+				logger_info("Call address %d from %d\n", c.arg1+1, cur_line+1);
+				// push return address
+				if (stack_push(cur_line) == -1) {
+					return -1;
+				}
+				cur_line = c.arg1 - 1;
+				break;
+			case tRET : 
+				stack_print();
+				if ((tmp = stack_pop()) == -1) {
+					return -1;
+				}
+				logger_info("Return to address %d from %d\n", tmp+1, cur_line+1);
+				cur_line = tmp;
+				break;
+			case tLEAVE : 
+				logger_info("Buh bye\n");
+				return 0;
 				break;
 		}
 		cur_line++;
 	}
+	return -1;
 }
 
 void code_print() { int i;
