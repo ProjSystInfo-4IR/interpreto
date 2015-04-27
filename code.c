@@ -21,7 +21,7 @@ int lineNum;
 void code_init() {     
 	stack_init();     
 	mem_init();     
-	lineNum = 1; 
+	lineNum = 0; 
 }
 
 int code0_ajouter(int opcode) {
@@ -60,9 +60,10 @@ int code3_ajouter(int opcode, int arg1, int arg2, int arg3) {
 	return 0;
 }
 
-int code_run() { int cur_line = 0; int tmp;
+int code_run() { int cur_line = 1; int tmp;
 	while(cur_line <= lineNum) {
-		struct code c = EXEC_CODE[cur_line];
+		struct code c = EXEC_CODE[cur_line - 1];
+		cur_line++;
 		switch (c.opcode) {
 			case tADD :
 				mem_set(c.arg1, mem_get(c.arg2) + mem_get(c.arg3));
@@ -83,42 +84,49 @@ int code_run() { int cur_line = 0; int tmp;
 				mem_set(c.arg1, c.arg2);
 				break;
 			case tJMP :
-				cur_line = c.arg1 - 1;
+				cur_line = c.arg1;
 				break;
 			case tJMF :
 				if (mem_get(c.arg1) == 0) {
-					cur_line = c.arg2 - 1;
+					cur_line = c.arg2;
 				}
 				break;
 			case tPRI : 
 				if (logger_get_level() == LOGGER_VERBOSE) {
-					logger_info("We have %d at address %d\n", mem_get(c.arg1), c.arg1+1);
+					logger_info("We have %d at address %d\n", mem_get(c.arg1), c.arg1);
 				} else {
 					printf("%d\n", mem_get(c.arg1));
 				}
 				break;
 			case tCALL : 
-				logger_info("Call address %d from %d\n", c.arg1+1, cur_line+1);
+				logger_info("Call address %d from %d\n", c.arg1, cur_line-1);
 				// push return address
 				if (stack_push(cur_line) == -1) {
 					return -1;
 				}
-				cur_line = c.arg1 - 1;
+				cur_line = c.arg1;
 				break;
 			case tRET : 
 				stack_print();
 				if ((tmp = stack_pop()) == -1) {
 					return -1;
 				}
-				logger_info("Return to address %d from %d\n", tmp+1, cur_line+1);
+				logger_info("Return to address %d from %d\n", tmp, cur_line-1);
 				cur_line = tmp;
 				break;
 			case tLEAVE : 
 				logger_info("Buh bye\n");
 				return 0;
+			case tPUSH : 
+				stack_push(mem_get(c.arg1));
 				break;
+			case tPOP : 
+				mem_set(c.arg1, stack_pop());
+				break;
+			default: 
+				logger_error("%d : Unknown opcode %d\n", cur_line, c.opcode);
+				return -1;
 		}
-		cur_line++;
 	}
 	return -1;
 }

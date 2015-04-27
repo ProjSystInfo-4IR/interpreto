@@ -18,6 +18,7 @@ char* inputFileName;
 %token tINF tSUP tEQU 
 %token tPRI
 %token tCALL tRET tLEAVE
+%token tPUSH tPOP
 %error-verbose
 %token <nombre> NOMBRE
 %union {int nombre;}
@@ -39,7 +40,9 @@ Instruction:  tADD NOMBRE NOMBRE NOMBRE 	{ code3_ajouter(tADD, $2, $3, $4); }
 			| tJMF NOMBRE NOMBRE        	{ code2_ajouter(tJMF, $2, $3); }		
 			| tJMP NOMBRE               	{ code1_ajouter(tJMP, $2); }
 			| tPRI NOMBRE               	{ code1_ajouter(tPRI, $2); }
-			| tCALL NOMBRE FNAME            { code1_ajouter(tCALL, $2); }
+			| tCALL NOMBRE                  { code1_ajouter(tCALL, $2); }
+			| tPUSH NOMBRE                  { code1_ajouter(tPUSH, $2); }
+			| tPOP NOMBRE                   { code1_ajouter(tPOP, $2); }
 			| tRET                          { code0_ajouter(tRET); }
 			| tLEAVE                        { code0_ajouter(tLEAVE); }
 			;

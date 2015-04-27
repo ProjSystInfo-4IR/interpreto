@@ -35,7 +35,9 @@ EQU           return tEQU;
 PRI           return tPRI;
 CALL          return tCALL;
 RET           return tRET;
-LEAVE         return tLEAVE;    
+LEAVE         return tLEAVE; 
+PUSH          return tPUSH;
+POP           return tPOP;   
 {DIGITS} 	{ yylval.nombre=atoi(yytext); 
 			  return NOMBRE;
 			}
