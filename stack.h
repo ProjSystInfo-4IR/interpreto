@@ -1,8 +1,21 @@
 
-void stack_init();
 
-int stack_push(int value);
+typedef struct stack_struct {
+	int* mem;
+	int capacity;
+	/**
+	 *   Stack pointer
+	 */
+	int sp;
+} stack;
 
-int stack_pop();
 
-void stack_print();
+void stack_init(stack* s, int capacity);
+
+int stack_push(stack* s, int value);
+
+int stack_pop(stack* s);
+
+void stack_print(stack* s);
+
+void stack_destroy(stack* s);

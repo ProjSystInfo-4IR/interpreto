@@ -6,6 +6,8 @@
 #include <stdio.h>
 
 #define CAPACITE 1000
+#define CAPACITE_STACK_ARGUMENTS 20
+#define CAPACITE_STACK_ADRESS_RETOUR 100
 #define MARQUEUR_VIDE -1
 
 struct code {
@@ -17,9 +19,11 @@ struct code {
 
 struct code EXEC_CODE[CAPACITE];
 int lineNum;
+stack args_stack, retaddr_stack;
 
 void code_init() {     
-	stack_init();     
+	stack_init(&args_stack, CAPACITE_STACK_ARGUMENTS);
+	stack_init(&retaddr_stack, CAPACITE_STACK_ADRESS_RETOUR);     
 	mem_init();     
 	lineNum = 0; 
 }
@@ -101,14 +105,13 @@ int code_run() { int cur_line = 1; int tmp;
 			case tCALL : 
 				logger_info("Call address %d from %d\n", c.arg1, cur_line-1);
 				// push return address
-				if (stack_push(cur_line) == -1) {
+				if (stack_push(&retaddr_stack, cur_line) == -1) {
 					return -1;
 				}
 				cur_line = c.arg1;
 				break;
 			case tRET : 
-				stack_print();
-				if ((tmp = stack_pop()) == -1) {
+				if ((tmp = stack_pop(&retaddr_stack)) == -1) {
 					return -1;
 				}
 				logger_info("Return to address %d from %d\n", tmp, cur_line-1);
@@ -118,10 +121,10 @@ int code_run() { int cur_line = 1; int tmp;
 				logger_info("Buh bye\n");
 				return 0;
 			case tPUSH : 
-				stack_push(mem_get(c.arg1));
+				stack_push(&args_stack, mem_get(c.arg1));
 				break;
 			case tPOP : 
-				mem_set(c.arg1, stack_pop());
+				mem_set(c.arg1, stack_pop(&args_stack));
 				break;
 			default: 
 				logger_error("%d : Unknown opcode %d\n", cur_line, c.opcode);
@@ -140,4 +143,10 @@ void code_print() { int i;
 			EXEC_CODE[i].arg2,
 			EXEC_CODE[i].arg3);
 	}
+}
+
+
+void code_destroy() {
+	stack_destroy(&args_stack);
+	stack_destroy(&retaddr_stack);
 }

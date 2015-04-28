@@ -85,5 +85,7 @@ int main(int argc, char** argv ) { int i, opt; FILE* inputFile;
   		code_run();
   	}
 
+  	code_destroy();
+
   	return i;
 }
