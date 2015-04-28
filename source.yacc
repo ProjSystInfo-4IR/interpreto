@@ -24,6 +24,8 @@ char* inputFileName;
 %union {int nombre;}
 %token <chaine> FNAME
 %union {char* chaine;} 
+%token <string> STRING
+%union {char* string;} 
 %start Input
 %%
 
@@ -40,6 +42,7 @@ Instruction:  tADD NOMBRE NOMBRE NOMBRE 	{ code3_ajouter(tADD, $2, $3, $4); }
 			| tJMF NOMBRE NOMBRE        	{ code2_ajouter(tJMF, $2, $3); }		
 			| tJMP NOMBRE               	{ code1_ajouter(tJMP, $2); }
 			| tPRI NOMBRE               	{ code1_ajouter(tPRI, $2); }
+			| tPRI STRING                   { code1_ajouter_str(tPRI, $2); }
 			| tCALL NOMBRE                  { code1_ajouter(tCALL, $2); }
 			| tPUSH NOMBRE                  { code1_ajouter(tPUSH, $2); }
 			| tPOP NOMBRE                   { code1_ajouter(tPOP, $2); }

@@ -10,6 +10,7 @@ SPACE  	[\t ]+
 EOL  	[\n]+
 DIGITS 	[0-9]+
 FUNCNAME [a-zA-Z][a-zA-Z0-9_]*
+STRING \".*\"
 %option yylineno
 %x COMMENT
 %%
@@ -43,6 +44,9 @@ POP           return tPOP;
 			}
 {FUNCNAME} 	{ yylval.chaine = strdup(yytext); 
 			  return FNAME; 
+			}
+{STRING}    { yylval.string = strdup(yytext); 
+			  return STRING; 
 			}
  
 %%

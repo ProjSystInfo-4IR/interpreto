@@ -3,7 +3,9 @@
 #include "mem.h"
 #include "stack.h"
 #include "dumb-logger/logger.h"
+#include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #define CAPACITE 1000
 #define CAPACITE_STACK_ARGUMENTS 20
@@ -15,6 +17,7 @@ struct code {
 	int arg1;
 	int arg2;
 	int arg3;
+	char* arg_str;
 };
 
 struct code EXEC_CODE[CAPACITE];
@@ -46,6 +49,16 @@ int code1_ajouter(int opcode, int arg1) {
 	return 0;
 }
 
+int code1_ajouter_str(int opcode, char* arg) {
+	EXEC_CODE[lineNum].opcode = opcode;
+	EXEC_CODE[lineNum].arg1 = MARQUEUR_VIDE;
+	EXEC_CODE[lineNum].arg2 = MARQUEUR_VIDE;
+	EXEC_CODE[lineNum].arg3 = MARQUEUR_VIDE;
+	EXEC_CODE[lineNum].arg_str = arg;
+	lineNum++;
+	return 0;
+}
+
 int code2_ajouter(int opcode, int arg1, int arg2) {
 	EXEC_CODE[lineNum].opcode = opcode;
 	EXEC_CODE[lineNum].arg1 = arg1;
@@ -63,6 +76,15 @@ int code3_ajouter(int opcode, int arg1, int arg2, int arg3) {
 	lineNum++;
 	return 0;
 }
+
+char* substr(char* str) { int i = 0;
+	char* res = malloc(sizeof(strlen(str)) - 1);
+	for (i = 1; i < strlen(str) - 1; i++) {
+		res[i-1] = str[i];
+	}
+	res[strlen(str) - 2] = 0; 
+	return res;
+} 
 
 int code_run() { int cur_line = 1; int tmp;
 	while(cur_line <= lineNum) {
@@ -96,10 +118,14 @@ int code_run() { int cur_line = 1; int tmp;
 				}
 				break;
 			case tPRI : 
-				if (logger_get_level() == LOGGER_VERBOSE) {
-					logger_info("We have %d at address %d\n", mem_get(c.arg1), c.arg1);
+				if (c.arg1 != MARQUEUR_VIDE) {
+					if (logger_get_level() == LOGGER_VERBOSE) {
+						logger_info("We have %d at address %d\n", mem_get(c.arg1), c.arg1);
+					} else {
+						printf("%d\n", mem_get(c.arg1));
+					}
 				} else {
-					printf("%d\n", mem_get(c.arg1));
+					printf("%s\n", substr(c.arg_str));
 				}
 				break;
 			case tCALL : 

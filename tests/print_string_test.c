@@ -1,0 +1,3 @@
+main() {
+	printf("test\n");
+}
