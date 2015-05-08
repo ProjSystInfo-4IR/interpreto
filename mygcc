@@ -7,7 +7,7 @@ MYGCC_DIR="`( cd \"$MYGCC_DIR\" && pwd )`"
 CUR_DIR=${PWD}
 
 cd $MYGCC_DIR
-../compilo/cible $CUR_DIR/$1 -o o.tmp.asm
+../compilo/simpleGCC $CUR_DIR/$1 -o o.tmp.asm
 if [ "$?" -eq 0 ] 
 then 
 	./itp o.tmp.asm
