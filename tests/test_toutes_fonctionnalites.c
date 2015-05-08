@@ -7,7 +7,7 @@ ok3(int a) ; ok4() ;
 
 // définition de la fonction ok(const int b) 
 ok(const int b2, int c, int d){   
-  printf("fonction ok") ; 
+  printf("fonction ok\n") ; 
   variable = 77 ; 
   printf(4+2) ; 
 }
@@ -18,20 +18,23 @@ ok2(){
   int z = 14 ; 
   int cpt = 4 ;  
 
-  printf("fonction ok2") ; 
+  printf("fonction ok2\n") ; 
   
   printf("cpt =") ; 
   printf(cpt) ;
+  printf("\n");
 
   ok(5,7,2) ; 
 
   printf("cpt =") ; 
   printf(cpt) ;
+  printf("\n");
 
   ok3(5+z/(b+b)) ; 
 
   printf("cpt =") ; 
   printf(cpt) ;
+  printf("\n");
 
   printf(variable) ; 
 
@@ -40,6 +43,7 @@ ok2(){
   }   
   printf("cpt =") ; 
   printf(cpt) ;
+  printf("\n");
 
   while(0) {
     variable = -cpt * 5 + 2 / b ; 
@@ -58,6 +62,7 @@ main() {
   printf(test1) ; 
   variable = ( z + a ) + 2 * -5 +  1  ; // égal à 4
   printf(variable) ; 
+  printf("\n");
   ok2() ;   ok((z*b*2+9-a),4/3+c3,111)  ;
   variable = 2 ; printf(variable) ; 
   if(variable) { 

@@ -87,14 +87,27 @@ int code3_ajouter(int opcode, int arg1, int arg2, int arg3) {
 
 
 
-/* enlever les guillements d'un string */ 
-char* substr(char* str) {
-  int i = 0;
+/* enlever les guillements d'un string 
+ * et bidouille pour remplacer les characteres \n par le vrai \n (ASCII : 34 92 => 10)
+ */ 
+char* process_string(char* str) {
+  int i = 0, j;
+  // nombre de charactere nouvelle ligne
+  int nl_num = 0;
   char* res = malloc(sizeof(strlen(str)) - 1);
+  j = 0;
   for (i = 1; i < strlen(str) - 1; i++) {
-    res[i-1] = str[i];
+    res[j] = str[i];
+    if (i < strlen(str) - 2) {
+      if (str[i] == '\\' && str[i+1] == 'n') {
+        res[i-1] = '\n';
+        i++;
+        nl_num++;
+      }
+    }
+    j++;
   }
-  res[strlen(str) - 2] = 0; 
+  res[strlen(str) - 2 - nl_num] = 0; 
   return res;
 } 
 
@@ -135,15 +148,15 @@ int code_run() {
       break;
     case tPRI : 
       if (c.arg1 != MARQUEUR_VIDE) {
-	// un integer est en argument 
-	if (logger_get_level() == LOGGER_VERBOSE) {
-	  logger_info("We have %d at address %d\n", mem_get(c.arg1), c.arg1);
-	} else {
-	  printf("%d\n", mem_get(c.arg1));
-	}
+      	// un integer est en argument 
+      	if (logger_get_level() == LOGGER_VERBOSE) {
+      	  logger_info("We have %d at address %d\n", mem_get(c.arg1), c.arg1);
+      	} else {
+      	  printf("%d", mem_get(c.arg1));
+      	}
       } else {
-	// affichage d'une chaine de caractères
-	printf("%s\n", substr(c.arg_str));
+        // affichage d'une chaine de caractères
+        printf("%s", process_string(c.arg_str));
       }
       break;
     case tCALL : 
