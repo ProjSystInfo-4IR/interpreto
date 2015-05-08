@@ -10,7 +10,9 @@
 extern int yylineno;
 extern FILE * yyin;
 char* inputFileName;
+
 %}
+
 %token tEOL
 %token tADD tMUL tSOU tDIV
 %token tCOP tAFC
@@ -19,21 +21,27 @@ char* inputFileName;
 %token tPRI
 %token tCALL tRET tLEAVE
 %token tPUSH tPOP
+
 %error-verbose
+
 %token <nombre> NOMBRE
 %union {int nombre;}
+
 %token <chaine> FNAME
 %union {char* chaine;} 
+
 %token <string> STRING
 %union {char* string;} 
+
 %start Input
 %%
 
 Input: Instructions ;
  
-Instructions: Instruction tEOL Instructions
-			| ;
-Instruction:  tADD NOMBRE NOMBRE NOMBRE 	{ code3_ajouter(tADD, $2, $3, $4); }
+Instructions:             Instruction tEOL Instructions
+			| 
+                        ;
+Instruction:              tADD NOMBRE NOMBRE NOMBRE 	{ code3_ajouter(tADD, $2, $3, $4); }
 			| tSOU NOMBRE NOMBRE NOMBRE 	{ code3_ajouter(tSOU, $2, $3, $4); }
 			| tMUL NOMBRE NOMBRE NOMBRE 	{ code3_ajouter(tMUL, $2, $3, $4); }
 			| tDIV NOMBRE NOMBRE NOMBRE 	{ code3_ajouter(tDIV, $2, $3, $4); }
@@ -55,40 +63,49 @@ int yyerror(char *s) {
   	logger_error("%s:%d : %s\n", inputFileName, yylineno, s);
 }
 
-int main(int argc, char** argv ) { int i, opt; FILE* inputFile;
-	inputFileName = malloc(20*sizeof(char));
-
-    while ((opt = getopt(argc, argv, "v")) != -1) {
-	    switch (opt) {
-			case 'v' : 
-			  // enables verbose mode
-			  logger_set_level(LOGGER_VERBOSE);
-			  break;
-	  	}
-    }
+int main(int argc, char** argv ) { 
+        
+  int i, opt; 
+  FILE* inputFile;
 	
-	if (optind == argc) {
-    	logger_error("No input file specified\n");
-    	return EXIT_FAILURE;
-  	}
+  inputFileName = malloc(20*sizeof(char));
 
-	if ((inputFile = fopen(argv[optind], "r")) == NULL) {
-		logger_error("Cannot open input file %s\n", argv[optind]);
-		return -1;
-	}
+  /* détection s'il faut afficher les détails de l'interprétation */
+  while ((opt = getopt(argc, argv, "v")) != -1) {
+    switch (opt) {
+    case 'v' : 
+      // enables verbose mode
+      logger_set_level(LOGGER_VERBOSE);
+      break;
+    }
+  }
+	
+  if (optind == argc) {
+    logger_error("No input file specified\n");
+    return EXIT_FAILURE;
+  }
 
-	yyin = inputFile;
-	inputFileName = argv[1];
+  if ((inputFile = fopen(argv[optind], "r")) == NULL) {
+    logger_error("Cannot open input file %s\n", argv[optind]);
+    return -1;
+  }
 
-	code_init();
-  	
-  	i = yyparse();
-  	if (i == 0) {
-  		code_print();
-  		code_run();
-  	}
+  yyin = inputFile;
+  inputFileName = argv[1];
 
-  	code_destroy();
+  // initialisation du tableau des instructions, de la mémoire et de la pile des arguments et de la pile des retours d'adresses de fonctions
+  code_init();
 
-  	return i;
+  // parsing   	
+  i = yyparse();
+
+  // interpretation des instructions détectées 
+  if (i == 0) {
+    code_print();
+    code_run();
+  }
+
+  code_destroy();
+
+  return i;
 }

@@ -1,8 +1,19 @@
 #include "stack.h"
 #include "dumb-logger/logger.h"
+
 #include <stdio.h>
 #include <limits.h> // pour INT_MIN
 #include <stdlib.h>
+
+/* extrait du fichier stack.h ; représentation d'une pile  
+
+typedef struct stack_struct {
+	int* mem;
+	int capacity;
+	int sp; // stack pointer 
+} stack;
+
+*/ 
 
 void stack_init(stack* s, int capacity) { int i;
 	s->capacity = capacity;
@@ -33,7 +44,7 @@ int stack_pop(stack* s) {
 }
 
 void stack_print(stack* s) { int i;
-	logger_info("Tableau du pile : \n");
+	logger_info("Representation de la pile : \n");
 	logger_info("Adresse - Valeur\n");
 	for (i = 0; i < s->sp; i++) {
 		logger_info("  %2d      %4d\n", i, s->mem[i]);
