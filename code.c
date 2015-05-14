@@ -113,88 +113,87 @@ char* process_string(char* str) {
 
 
 int code_run() { int cur_line = 1; int tmp;
-	while(cur_line <= lineNum) {
-		struct code c = EXEC_CODE[cur_line - 1];
-		cur_line++;
-		switch (c.opcode) {
-			case tADD :
-				mem_set(c.arg1, mem_get(c.arg2) + mem_get(c.arg3));
-				break;
-			case tSOU :
-				mem_set(c.arg1, mem_get(c.arg2) - mem_get(c.arg3));
-				break;
-			case tMUL :
-				mem_set(c.arg1, mem_get(c.arg2) * mem_get(c.arg3));
-				break;
-			case tDIV :
-				mem_set(c.arg1, mem_get(c.arg2) / mem_get(c.arg3));
-				break;
-			case tCOP :
-				mem_set(c.arg1, mem_get(c.arg2));
-				break;
-			case tAFC :
-				mem_set(c.arg1, c.arg2);
-				break;
-			case tJMP :
-				cur_line = c.arg1;
-				break;
-			case tJMF :
-				if (mem_get(c.arg1) == 0) {
-					cur_line = c.arg2;
-				}
-				break;
-			case tPRI : 
-				if (c.arg1 != MARQUEUR_VIDE) {
-					if (logger_get_level() == LOGGER_VERBOSE) {
-						logger_info("We have %d at address %d\n", mem_get(c.arg1), c.arg1);
-					} else {
-						printf("%d", mem_get(c.arg1));
-					}
-				} else {
-					printf("%s", process_string(c.arg_str));
-				}
-				break;
-			case tCALL : 
-			  logger_info("Appel addresse %d de  %d. Il faut sauter au dessus de %d variables \n", c.arg1, cur_line-1, c.arg2);
-				// push return address
-			  if (stack_push(&retaddr_stack, get_ebp()) == -1) { // push actuel bas de pile
-					return -1;
-				}
-				if (stack_push(&retaddr_stack, cur_line) == -1) { // push return address
-					return -1;
-				}
-                                set_ebp(get_ebp() + c.arg2 + 1) ; // mise à jour du bas de la pile 
-				logger_info("Bas de pile changé à : %d \n", get_ebp());
-				cur_line = c.arg1;
-				break;
-			case tRET : 
-				if ((tmp = stack_pop(&retaddr_stack)) == -1) {
-					return -1;
-				}
-				cur_line = tmp; 
-				if ((tmp = stack_pop(&retaddr_stack)) == -1) {
-					return -1;
-				}
-				set_ebp(tmp) ; 
-                                logger_info("Bas de pile remis à l'origne (à : %d)\n", get_ebp());
-				logger_info("Return to address %d \n", cur_line);
-				
-				break;
-			case tLEAVE : 
-				logger_info("LEAVE détecté ; fin du programme\n");
-				return 0;
-			case tPUSH : 
-				stack_push(&args_stack, mem_get(c.arg1));
-				break;
-			case tPOP : 
-				mem_set(c.arg1, stack_pop(&args_stack));
-				break;
-			default: 
-				logger_error("%d : Unknown opcode %d\n", cur_line, c.opcode);
-				return -1;
-		}
+  while(cur_line <= lineNum) {
+    struct code c = EXEC_CODE[cur_line - 1];
+    cur_line++;
+    switch (c.opcode) {
+    case tADD :
+      mem_set(c.arg1, mem_get(c.arg2) + mem_get(c.arg3));
+      break;
+    case tSOU :
+      mem_set(c.arg1, mem_get(c.arg2) - mem_get(c.arg3));
+      break;
+    case tMUL :
+      mem_set(c.arg1, mem_get(c.arg2) * mem_get(c.arg3));
+      break;
+    case tDIV :
+      mem_set(c.arg1, mem_get(c.arg2) / mem_get(c.arg3));
+      break;
+    case tCOP :
+      mem_set(c.arg1, mem_get(c.arg2));
+      break;
+    case tAFC :
+      mem_set(c.arg1, c.arg2);
+      break;
+    case tJMP :
+      cur_line = c.arg1;
+      break;
+    case tJMF :
+      if (mem_get(c.arg1) == 0) {
+	cur_line = c.arg2;
+      }
+      break;
+    case tPRI : 
+      if (c.arg1 != MARQUEUR_VIDE) {
+	if (logger_get_level() == LOGGER_VERBOSE) {
+	  logger_info("We have %d at address %d\n", mem_get(c.arg1), c.arg1);
+	} else {
+	  printf("%d", mem_get(c.arg1));
 	}
+      } else {
+	printf("%s", process_string(c.arg_str));
+      }
+      break;
+    case tCALL : 
+      logger_info("Appel addresse %d de  %d. Il faut sauter au dessus de %d variables \n", c.arg1, cur_line-1, c.arg2);
+      init_var_globales(c.arg2) ; 
+      if (stack_push(&retaddr_stack, get_ebp()) == -1) { // push actuel bas de pile
 	return -1;
+      }
+      if (stack_push(&retaddr_stack, cur_line) == -1) { // push return address
+	return -1;
+      }
+      set_ebp(get_ebp() + c.arg2 + 1) ; // mise à jour du bas de la pile 
+      logger_info("Bas de pile changé à : %d \n", get_ebp());
+      cur_line = c.arg1;
+      break;
+    case tRET : 
+      if ((tmp = stack_pop(&retaddr_stack)) == -1) {
+	return -1;
+      }
+      cur_line = tmp; 
+      if ((tmp = stack_pop(&retaddr_stack)) == -1) {
+	return -1;
+      }
+      set_ebp(tmp) ; 
+      logger_info("Bas de pile remis à l'origne (à : %d)\n", get_ebp());
+      logger_info("Return to address %d \n", cur_line);				
+      break;
+    case tLEAVE : 
+      logger_info("LEAVE détecté ; fin du programme\n");
+      return 0;
+    case tPUSH : 
+      stack_push(&args_stack, mem_get(c.arg1));
+      break;
+    case tPOP : 
+      mem_set(c.arg1, stack_pop(&args_stack));
+      break;
+    default: 
+      logger_error("%d : Unknown opcode %d\n", cur_line, c.opcode);
+      return -1;
+    }
+  }
+  return -1;
 }
 
 void code_print() { 
