@@ -1,4 +1,6 @@
+void set_ebp(int value) ;
 
+int get_ebp() ;
 
 void mem_init();
 

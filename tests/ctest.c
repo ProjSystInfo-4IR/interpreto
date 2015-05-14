@@ -1,9 +1,14 @@
+int a = 4 ; 
+int b = 5 * -a;
+
+
 main() {
-  int a = 66;
-  int b = -5;
-  int c = -b;
-  printf(a);
-  printf(b);
-  printf(a+b*2+50);
-  printf(c);
+int c = 7 ; 
+printf(a) ; 
+printf("\n");
+printf(c) ; 
+printf("\n");
+printf(b) ; 
+printf("\n");
+
 }

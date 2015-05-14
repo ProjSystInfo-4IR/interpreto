@@ -10,9 +10,7 @@
 extern int yylineno;
 extern FILE * yyin;
 char* inputFileName;
-
 %}
-
 %token tEOL
 %token tADD tMUL tSOU tDIV
 %token tCOP tAFC
@@ -21,27 +19,21 @@ char* inputFileName;
 %token tPRI
 %token tCALL tRET tLEAVE
 %token tPUSH tPOP
-
 %error-verbose
-
 %token <nombre> NOMBRE
 %union {int nombre;}
-
 %token <chaine> FNAME
 %union {char* chaine;} 
-
 %token <string> STRING
 %union {char* string;} 
-
 %start Input
 %%
 
 Input: Instructions ;
  
-Instructions:             Instruction tEOL Instructions
-			| 
-                        ;
-Instruction:              tADD NOMBRE NOMBRE NOMBRE 	{ code3_ajouter(tADD, $2, $3, $4); }
+Instructions: Instruction tEOL Instructions
+			| ;
+Instruction:  tADD NOMBRE NOMBRE NOMBRE 	{ code3_ajouter(tADD, $2, $3, $4); }
 			| tSOU NOMBRE NOMBRE NOMBRE 	{ code3_ajouter(tSOU, $2, $3, $4); }
 			| tMUL NOMBRE NOMBRE NOMBRE 	{ code3_ajouter(tMUL, $2, $3, $4); }
 			| tDIV NOMBRE NOMBRE NOMBRE 	{ code3_ajouter(tDIV, $2, $3, $4); }
@@ -51,7 +43,7 @@ Instruction:              tADD NOMBRE NOMBRE NOMBRE 	{ code3_ajouter(tADD, $2, $
 			| tJMP NOMBRE               	{ code1_ajouter(tJMP, $2); }
 			| tPRI NOMBRE               	{ code1_ajouter(tPRI, $2); }
 			| tPRI STRING                   { code1_ajouter_str(tPRI, $2); }
-			| tCALL NOMBRE                  { code1_ajouter(tCALL, $2); }
+                        | tCALL NOMBRE NOMBRE           { code2_ajouter(tCALL, $2, $3); }
 			| tPUSH NOMBRE                  { code1_ajouter(tPUSH, $2); }
 			| tPOP NOMBRE                   { code1_ajouter(tPOP, $2); }
 			| tRET                          { code0_ajouter(tRET); }
@@ -63,49 +55,40 @@ int yyerror(char *s) {
   	logger_error("%s:%d : %s\n", inputFileName, yylineno, s);
 }
 
-int main(int argc, char** argv ) { 
-        
-  int i, opt; 
-  FILE* inputFile;
-	
-  inputFileName = malloc(20*sizeof(char));
+int main(int argc, char** argv ) { int i, opt; FILE* inputFile;
+	inputFileName = malloc(20*sizeof(char));
 
-  /* détection s'il faut afficher les détails de l'interprétation */
-  while ((opt = getopt(argc, argv, "v")) != -1) {
-    switch (opt) {
-    case 'v' : 
-      // enables verbose mode
-      logger_set_level(LOGGER_VERBOSE);
-      break;
+    while ((opt = getopt(argc, argv, "v")) != -1) {
+	    switch (opt) {
+			case 'v' : 
+			  // enables verbose mode
+			  logger_set_level(LOGGER_VERBOSE);
+			  break;
+	  	}
     }
-  }
 	
-  if (optind == argc) {
-    logger_error("No input file specified\n");
-    return EXIT_FAILURE;
-  }
+	if (optind == argc) {
+    	logger_error("No input file specified\n");
+    	return EXIT_FAILURE;
+  	}
 
-  if ((inputFile = fopen(argv[optind], "r")) == NULL) {
-    logger_error("Cannot open input file %s\n", argv[optind]);
-    return -1;
-  }
+	if ((inputFile = fopen(argv[optind], "r")) == NULL) {
+		logger_error("Cannot open input file %s\n", argv[optind]);
+		return -1;
+	}
 
-  yyin = inputFile;
-  inputFileName = argv[1];
+	yyin = inputFile;
+	inputFileName = argv[1];
 
-  // initialisation du tableau des instructions, de la mémoire et de la pile des arguments et de la pile des retours d'adresses de fonctions
-  code_init();
+	code_init();
+  	
+  	i = yyparse();
+  	if (i == 0) {
+  		code_print();
+  		code_run();
+  	}
 
-  // parsing   	
-  i = yyparse();
+  	code_destroy();
 
-  // interpretation des instructions détectées 
-  if (i == 0) {
-    code_print();
-    code_run();
-  }
-
-  code_destroy();
-
-  return i;
+  	return i;
 }
