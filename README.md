@@ -23,23 +23,25 @@ Interpréteur du langage ASM généré par [compilo](https://github.com/ProjSyst
 * Gestionnaire de l’affichage et des erreurs de compilation : Intégration de la partie  dumb-logger développé (fichier dumb-logger.c). 
 
 ## Utilisation de l’interpreteur “maison” 
+
 1. Makefile : obtention du programme itp, notre interpréteur de fichier assembleur. 
 
 `~/interpreto$ make `
 
-2.
+2. Lancement de l'interpréteur 
+
 	1.  Interprétation d'un fichier ASM :
 
 ` ~/interpreto$ ./itp [fichier.asm] [flags] `
 
-	Sans flags, le contenu des printf (et éventuellement les erreurs d’interprétation) apparaissent. Rajouter le flag -v permet d'avoir des informations concernant la compilation du fichier C (Affichage d’infos sur le bas de pile, etc.).
+Sans flags, le contenu des printf (et éventuellement les erreurs d’interprétation) apparaissent. Rajouter le flag -v permet d'avoir des informations concernant la compilation du fichier C (Affichage d’infos sur le bas de pile, etc.).
 
 	2. Interprétation d’un fichier C : 
 
 `~/interpreto$ ./mygcc [fichier.c] `
 
-	Ce script fait appel à simpleGCC du répertoire compilo ; ensuite le script fait appel à l’interpréteur itp pour compiler le fichier ASM créé o.tmp.asm. 
-	A noter que différents fichiers C de tests sont fournis dans le répertoire interpreto/test_files.
+Ce script fait appel à simpleGCC du répertoire compilo ; ensuite le script fait appel à l’interpréteur itp pour compiler le fichier ASM créé o.tmp.asm. 
+A noter que différents fichiers C de tests sont fournis dans le répertoire interpreto/test_files.
 
 
 ## Précisions 
