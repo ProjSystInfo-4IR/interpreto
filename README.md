@@ -24,18 +24,19 @@ Interpréteur du langage ASM généré par [compilo](https://github.com/ProjSyst
 
 ## Utilisation de l’interpreteur “maison” 
 1. Makefile : obtention du programme itp, notre interpréteur de fichier assembleur. 
+
 `~/interpreto$ make `
 
 2.
 	1.  Interprétation d'un fichier ASM :
 
-	` ~/interpreto$ ./itp [fichier.asm] [flags] `
+` ~/interpreto$ ./itp [fichier.asm] [flags] `
 
 	Sans flags, le contenu des printf (et éventuellement les erreurs d’interprétation) apparaissent. Rajouter le flag -v permet d'avoir des informations concernant la compilation du fichier C (Affichage d’infos sur le bas de pile, etc.).
 
 	2. Interprétation d’un fichier C : 
 
-	`~/interpreto$ ./mygcc [fichier.c] `
+`~/interpreto$ ./mygcc [fichier.c] `
 
 	Ce script fait appel à simpleGCC du répertoire compilo ; ensuite le script fait appel à l’interpréteur itp pour compiler le fichier ASM créé o.tmp.asm. 
 	A noter que différents fichiers C de tests sont fournis dans le répertoire interpreto/test_files.
@@ -53,10 +54,10 @@ Dans le cas contraire, il s’agit d’une variable locale, donc on affecte adr 
 	* On initialise egalement le bas de pile ebp à 0 au tout début. A chaque fois qu’on rencontre un CALL @adresse nb_var, on indique que ebp = ebp + nb_var
 	* A chaque fois qu’on rencontre un RET, on indique que ebp = ebp précédent (pop)
 * Pour implémenter la gestion des fonctions, nous avons deux piles : 
-	1. Pile des arguments :
+1. Pile des arguments :
    * A chaque fois que l’interpréteur rencontre un PUSH @adresse, il va chercher la valeur V1 du symbole stockée dans la mémoire (mem.c) à l’adresse @adresse et empile cette valeur V1 (la place en haut de la pile). 
    * A chaque fois que l’interpréteur rencontre un POP @adresse, il dépile (prend la valeur V1 la plus en haut de la pile des arguments) et le symbole stocké à l’adresse @adresse dans la mémoire (mem.c) est affecté à cette valeur V1. 
-	2. Pile des adresses de retour / bas de pile :
+2. Pile des adresses de retour / bas de pile :
    * A chaque fois que l’interpréteur rencontre un CALL @ nb_var à la ligne X, il empile la valeur ebp puis il empile la valeur X+1 (place ebp puis X+1 en haut de la pile) et exécute le code à partir de la ligne @. La valeur de ebp est changé à  ebp + nb_var
    * A chaque fois que l’interpréteur rencontre un RET, il dépile Y puis Z (prend la valeur du dessus Y, puis prend la valeur du dessus Z). Z est le précédent ebp empilé, on affecte donc ebp = Z. 
 Y est la ligne ASM de retour, le code s’execute par la suite à partir de la ligne Y.
